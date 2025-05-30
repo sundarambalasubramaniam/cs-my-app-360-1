@@ -1,41 +1,45 @@
 name: Deploy Django to Azure
 
-
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Archive code
-        run: zip -r release.zip . -x '*.git*' 'release.zip' '__pycache__/*'
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          package: release.zip        # Deploy the application to Azure Web App
-        # Prerequisites:
-        # - Ensure the Azure Web App name is stored in the secret AZURE_WEBAPP_NAME.
-        # - The package field specifies the path to the deployment package (e.g., a zip file or folder).
+    build-and-deploy:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+        
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.11'
+        
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+            - name: Collect static files
+              run: |
+                python manage.py collectstatic --noinput
+        
+            - name: Run migrations
+              run: |
+                python manage.py migrate --noinput
+        
+            - name: Azure Login
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+            - name: Archive code
+              run: zip -r release.zip . -x '*.git*' 'release.zip' '__pycache__/*'
+        
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v3
+              with:
+                app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+                package: release.zip
