@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload File</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .upload-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 2.5rem 2rem 2rem 2rem;
+            margin-top: 3rem;
+            max-width: 500px;
+        }
+        .btn-custom {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+        .btn-custom:hover {
+            background-color: #0b5ed7;
+        }
+        .section-title {
+            margin-bottom: 1.5rem;
+        }
+        .status-section {
+            margin-top: 2rem;
+        }
+        .action-section {
+            margin-top: 2.5rem;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            var fileInput = document.querySelector('input[type="file"]');
+            if (!fileInput.value) {
+                alert("Please choose a file to upload.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="upload-container w-100">
+            <h1 class="display-6 fw-bold text-primary section-title text-center">Upload File</h1>
+            <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label fw-semibold">Choose a file to upload</label>
+                    <input class="form-control" type="file" id="fileInput" name="myfile">
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-custom btn-lg">Upload</button>
+                </div>
+                {% if file_not_chosen %}
+                    <div class="alert alert-danger mt-3" role="alert">
+                        File was not chosen. Please try uploading again.
+                    </div>
+                {% endif %}
+            </form>
+
+            {% if uploaded_file_url %}
+            <div class="status-section">
+                <div class="alert alert-success" role="alert">
+                    <h5 class="alert-heading mb-2">Status:</h5>
+                    <p class="mb-1"><strong>Status of the file:</strong> {{ file_status_message }}</p>
+                    <p class="mb-0"><strong>File uploaded at:</strong> <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="action-section">
+                <div class="mb-4">
+                    <label class="form-label fw-bold fs-5">List files from BLOB?</label>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'list_files' %}" class="btn btn-outline-success btn-lg">Click Here</a>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label fw-bold fs-5">Want to go to Home page?</label>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg">Back home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add User</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+</head>
+<body>
+    <h2 class="text-center my-4">Add User</h2>
+    {% if message %}
+        <p style="color: green;" class="text-center">{{ message }}</p>
+    {% endif %}
+    <form method="post" action="{% url 'update_db_data' %}">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-md-4 offset-md-4">
+                    <label for="first_name" class="form-label fw-bold">First Name:</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" value="{{ request.POST.first_name|default_if_none:'' }}" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4 offset-md-4">
+                    <label for="last_name" class="form-label fw-bold">Last Name:</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" value="{{ request.POST.last_name|default_if_none:'' }}" required>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-4 offset-md-4">
+                    <label for="email" class="form-label fw-bold">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ request.POST.email|default_if_none:'' }}" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 offset-md-4 text-center">
+                    <input type="submit" value="Add User" class="btn btn-primary w-100">
+                </div>
+            </div>
+        </div>
+    </form>
+    <form>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    {% if uploaded_file_url %}
+                        <h1>Status:</h1>
+                        <p><strong>Status of the file:</strong> {{ file_status_message }}</p>
+                        <p><strong>File uploaded at:</strong> <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <label class="form-label fw-bold fs-5 mb-3">VIEW users in MySQL database?</label>
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="{% url 'list_db_data' %}" class="btn btn-secondary btn-lg px-4" style="background-color: var(--bs-orange);">Click Here</a>
+                        </div>
+                        <hr>
+                        <label class="form-label fw-bold fs-5 mb-3">Want to go to Home page?</label>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'index' %}" class="btn btn-secondary btn-lg px-4">Back home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

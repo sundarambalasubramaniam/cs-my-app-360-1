@@ -1,0 +1,82 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+<style>
+    .custom-table th, .custom-table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+    .custom-header {
+        background: linear-gradient(90deg, #0dcaf0 0%, #6610f2 100%);
+        color: #fff;
+        padding: 1.5rem 0;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .custom-btn {
+        background-color: #0dcaf0 !important;
+        border: none;
+    }
+    .custom-btn:hover {
+        background-color: #6610f2 !important;
+    }
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="custom-header text-center mb-4">
+        <h2 class="fw-bold mb-0">Items List</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover custom-table align-middle shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th>user_id</th>
+                    <th>first_name</th>
+                    <th>last_name</th>
+                    <th>email</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.user_id }}</td>
+                    <td>{{ item.first_name }}</td>
+                    <td>{{ item.last_name }}</td>
+                    <td>{{ item.email }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <form method="post" action="{% url 'delete_record' item.user_id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6 mx-auto">
+            <form method="get" action="{% url 'update_db_data' %}" class="mb-4 p-4 bg-light rounded shadow-sm">
+                <label class="form-label fw-bold fs-5 mb-3">Add user to MySQL database?</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn custom-btn btn-lg">Click Here</button>
+                </div>
+            </form>
+            <div class="text-center">
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-4">Back home</a>
+            </div>
+        </div>
+    </div>
+</div>

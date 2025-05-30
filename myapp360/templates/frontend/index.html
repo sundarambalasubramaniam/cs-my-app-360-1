@@ -1,0 +1,124 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Hello Azure - Cloudsaucer Quick Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+      min-height: 100vh;
+    }
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    .azure-logo {
+      background: #fff;
+      border-radius: 50%;
+      padding: 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .demo-section {
+      max-width: 480px;
+      margin: 0 auto 2rem auto;
+    }
+    .btn-lg {
+      min-width: 180px;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container py-5">
+    <div class="text-center mb-5">
+      <img class="azure-logo d-block mx-auto mb-4" src="{% static 'images/azure-icon.svg' %}" alt="Azure Logo" width="128" height="128"/>
+      <h1 class="display-5 fw-bold text-primary">Welcome to Cloudsaucer Azure Demo</h1>
+      <p class="lead text-secondary">Explore different functionalities one by one</p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+
+        <!-- Say Hello Section -->
+        <div class="card demo-section">
+          <div class="card-body">
+            <div class="section-title fw-bold">1. Greet User</div>
+            <form method="post" action="hello">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="name" class="form-label">Please tell me your name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Your name">
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Say Hello</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- List Files from Blob -->
+        <div class="card demo-section">
+          <div class="card-body">
+            <div class="section-title fw-bold">2. List Files from Azure Blob Storage</div>
+            <form>
+              {% csrf_token %}
+              <div class="d-grid">
+                <a href="{% url 'list_files' %}" class="btn btn-success btn-lg">List Files</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Upload File to Blob -->
+        <div class="card demo-section">
+          <div class="card-body">
+            <div class="section-title fw-bold">3. Upload File to Azure Blob Storage</div>
+            <form>
+              {% csrf_token %}
+              <div class="d-grid">
+                <a href="{% url 'upload_file' %}" class="btn btn-purple btn-lg" style="background-color: #a78bfa; color: #fff;">Upload File</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- View Users in MySQL -->
+        <div class="card demo-section">
+          <div class="card-body">
+            <div class="section-title fw-bold">4. View Users in MySQL Database</div>
+            <form method="post" action="{% url 'list_db_data' %}">
+              {% csrf_token %}
+              <div class="d-grid">
+                <a href="{% url 'list_db_data' %}" class="btn btn-warning btn-lg text-white">View Users</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Add User to MySQL -->
+        <div class="card demo-section">
+          <div class="card-body">
+            <div class="section-title fw-bold">5. Add User to MySQL Database</div>
+            <form method="post" action="{% url 'update_db_data' %}">
+              {% csrf_token %}
+              <div class="d-grid">
+                <a href="{% url 'update_db_data' %}" class="btn btn-info btn-lg text-white">Add User</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List Files</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .container-main {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 2rem 2.5rem;
+            margin-top: 3rem;
+            max-width: 700px;
+        }
+        .theme-header {
+            color: #6f42c1;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .btn-theme {
+            background-color: #6f42c1;
+            color: #fff;
+            border: none;
+        }
+        .btn-theme:hover {
+            background-color: #59359c;
+            color: #fff;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .badge {
+            font-size: 1rem;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container container-main">
+        <h1 class="theme-header mb-3 text-center">Files in Blob Container</h1>
+        <p class="lead text-center">Browse and manage your files below.</p>
+
+        <div class="mb-4">
+            <div class="section-title">Files (Table View)</div>
+            <table class="table table-bordered table-striped align-middle shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">File Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in list_file_names %}
+                        <tr>
+                            <td class="text-center">{{ file }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td class="text-muted text-center">No files found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-end">
+                <span class="badge bg-secondary">Number of Files: {{ list_file_names|length }}</span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h6 class="fw-bold">File Names (Raw Array):</h6>
+            <code>{{ list_file_names }}</code>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-bold fs-5">Upload file to Blob?</label>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
+                <a href="{% url 'upload_file' %}" class="btn btn-theme btn-lg px-4 gap-3">Upload File</a>
+            </div>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label fw-bold fs-5">Want to go to Home page?</label>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-4 gap-3">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

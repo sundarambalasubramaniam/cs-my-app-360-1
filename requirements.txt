@@ -1,0 +1,7 @@
+Django
+whitenoise
+azure-storage-blob
+# below package is for loading environment variables from .env file
+python-dotenv
+azure-identity
+gunicorn
