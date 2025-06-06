@@ -90,22 +90,20 @@
             </div>
         </div>
 
-        <div class="mb-4">
-            <h6 class="fw-bold">File Names (Raw Array):</h6>
-            <code>{{ list_file_names }}</code>
-        </div>
+        <!-- Add extra spacing before the upload section -->
+        <div class="mb-4"></div>
 
-        <div class="mb-4">
+        <div class="mb-4 text-center">
             <label class="form-label fw-bold fs-5">Upload file to Blob?</label>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
-                <a href="{% url 'upload_file' %}" class="btn btn-theme btn-lg px-4 gap-3">Upload File</a>
+            <a href="{% url 'upload_file' %}" class="btn btn-theme btn-lg px-4 gap-3">Upload File</a>
             </div>
         </div>
 
-        <div class="mb-2">
+        <div class="mb-2 text-center">
             <label class="form-label fw-bold fs-5">Want to go to Home page?</label>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
-                <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-4 gap-3">Back to Home</a>
+            <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-4 gap-3">Back to Home</a>
             </div>
         </div>
     </div>
