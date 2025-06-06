@@ -65,6 +65,26 @@ def list_files(request):
 #from dotenv import load_dotenv
 
 
+@csrf_exempt
+def delete_file(request, file_name):
+    """
+    Deletes a file from the Azure Blob Storage container.
+    """
+    print(f"Request to delete file: {file_name}")
+    container_name, account_url = load_azure_env_variables()
+    if not account_url:
+        return HttpResponse("The Azure Storage account URL is not set in the environment variables.")
+    
+    try:
+        blob_client = get_blob_client(container_name, account_url, file_name)
+        blob_client.delete_blob()
+        print(f"File {file_name} deleted successfully.")
+        return redirect('list_files')
+    except Exception as e:
+        print(f"Error occurred while deleting file {file_name}: {e}")
+        return HttpResponse(f"Error occurred: {e}")
+
+
 # Create your views here.
 def index(request):
     print('Request for index page received')
