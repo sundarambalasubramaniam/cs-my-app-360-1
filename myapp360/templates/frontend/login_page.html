@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Cloud Saucer Demo Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 0;
+        }
+        .banner {
+            background: #0078d4;
+            color: #fff;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 2em;
+            letter-spacing: 1px;
+        }
+        .login-container {
+            background: #fff;
+            max-width: 350px;
+            margin: 60px auto;
+            padding: 30px 40px 40px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        }
+        .login-container h2 {
+            margin-bottom: 24px;
+            color: #333;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .login-btn, .azure-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .login-btn {
+            background: #0078d4;
+            color: #fff;
+        }
+        .azure-btn {
+            background: #242424;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .azure-btn img {
+            height: 20px;
+            margin-right: 10px;
+        }
+        .divider {
+            text-align: center;
+            margin: 18px 0;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        Welcome to Cloud Saucer Demo portal
+    </div>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm" method="post" action="{% url 'azure_login' %}">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="divider">or</div>
+        <form id="azureEntraForm" method="get" action="{% url 'azure_login' %}">
+            <button type="submit" class="azure-btn">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/microsoftazure.svg" alt="Azure Logo">
+                Login with Azure Entra
+            </button>
+        </form>
+    </div>
+    <script>
+        // Redirect to index.html after successful login (simulate for demo)
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Replace with real authentication logic
+            window.location.href = '/index.html';
+        });
+
+        // For Azure Entra, backend should handle OAuth2 redirect and callback
+        // After successful Azure login, backend should redirect to /index.html
+    </script>
+</body>
+</html>

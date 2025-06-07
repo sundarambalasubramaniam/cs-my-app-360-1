@@ -21,15 +21,144 @@ import logging
 from azure.identity import get_bearer_token_provider
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
-
+import msal
+from django.conf import settings
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
+import requests
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("azure.identity").setLevel(logging.DEBUG)
 
+
+
+# Create your views here.
+
+
+def login_page(request):
+    """
+    Renders the login page with a button to sign in with Microsoft Entra ID.
+    """
+    return render(request, 'frontend/login_page.html')
+
+def azure_login(request):
+    """
+    Initiates the Azure AD login flow using MSAL.
+    """
+    authority = settings.AZURE_AD_AUTHORITY
+    client_id = settings.AZURE_AD_CLIENT_ID
+    redirect_uri = settings.AZURE_AD_REDIRECT_URI
+    scope = settings.AZURE_AD_SCOPE
+    msal_app = msal.ConfidentialClientApplication(
+        client_id,
+        authority=authority,
+        client_credential=settings.AZURE_AD_CLIENT_SECRET
+    )
+    auth_url = msal_app.get_authorization_request_url(
+        scopes=scope,
+        redirect_uri=redirect_uri
+    )
+    return redirect(auth_url)
+
+def is_user_in_group(id_token_claims, required_group_id, access_token=None):
+    """
+    Checks if the user is a member of the required Entra group by group object ID.
+    Always checks Graph API if not found in token claims.
+    """
+    print(f"DEBUG: Checking for required_group_id: {required_group_id}")
+    groups = id_token_claims.get('groups', [])
+    print(f"DEBUG: groups in id_token_claims: {groups}")
+    if required_group_id in groups:
+        print("DEBUG: User is in group via id_token_claims.")
+        return True
+    # Always check Graph API if not found in token
+    if access_token:
+        headers = {"Authorization": f"Bearer {access_token}"}
+        url = "https://graph.microsoft.com/v1.0/me/memberOf?$select=id"
+        response = requests.get(url, headers=headers)
+        print(f"DEBUG: Graph API status: {response.status_code}")
+        print(f"DEBUG: Full Graph API response: {response.text}")
+        if response.status_code == 200:
+            data = response.json()
+            group_ids = [g['id'] for g in data.get('value', [])]
+            print(f"DEBUG: group_ids from Graph API: {group_ids}")
+            if required_group_id in group_ids:
+                print("DEBUG: User is in group via Graph API.")
+                return True
+            else:
+                print("DEBUG: User is NOT in group via Graph API.")
+                return False
+        else:
+            print(f"Graph API error: {response.status_code} {response.text}")
+            return False
+    print("DEBUG: User is NOT in group (no group claim and no access token for Graph API).")
+    return False
+
+# Read group ID from environment variable
+ENTRA_REQUIRED_GROUP_ID = os.getenv('ENTRA_USER_GROUP_ID')
+print(f"DEBUG: ENTRA_REQUIRED_GROUP_ID at startup: {ENTRA_REQUIRED_GROUP_ID}")
+
 @csrf_exempt
+def azure_callback(request):
+    """
+    Handles the redirect from Azure AD and logs the user in if they are in the allowed group.
+    """
+    code = request.GET.get('code', None)
+    if not code:
+        return HttpResponse('No code returned from Azure AD.')
+    authority = settings.AZURE_AD_AUTHORITY
+    client_id = settings.AZURE_AD_CLIENT_ID
+    redirect_uri = settings.AZURE_AD_REDIRECT_URI
+    scope = settings.AZURE_AD_SCOPE
+    msal_app = msal.ConfidentialClientApplication(
+        client_id,
+        authority=authority,
+        client_credential=settings.AZURE_AD_CLIENT_SECRET
+    )
+    result = msal_app.acquire_token_by_authorization_code(
+        code,
+        scopes=scope,
+        redirect_uri=redirect_uri
+    )
+    if 'id_token_claims' in result:
+        id_token_claims = result['id_token_claims']
+        user_name = id_token_claims.get('name', 'User')
+        user_email = id_token_claims.get('preferred_username', None)
+        access_token = result.get('access_token')
+        print("DEBUG: access_token in callback:", access_token)
+        # Check group membership (handles overage with Graph API)
+        if not is_user_in_group(id_token_claims, ENTRA_REQUIRED_GROUP_ID, access_token):
+            return HttpResponseForbidden('Access denied: You are not a member of the required group.')
+        # Create or get a Django user and log them in
+        if user_email:
+            user, created = User.objects.get_or_create(username=user_email, defaults={'first_name': user_name})
+            auth_login(request, user)
+        return render(request, 'frontend/login_success.html', {'name': user_name})
+    else:
+        return HttpResponse(f'Login failed: {result.get("error_description", "Unknown error")}', status=401)
+
+@csrf_exempt
+def login_success(request):
+    """
+    Renders the login success page after Azure AD authentication.
+    """
+    # You can retrieve user information from session or token here
+    user_name = request.GET.get('name', 'User')
+    return render(request, 'frontend/login_success.html', {'name': user_name})
+
+@login_required(login_url='/')
+def index(request):
+    print('Request for index page received')
+    return render(request, 'frontend/index.html')
+
+@login_required(login_url='/')
 def list_files(request):
     # Log the Azure AD credentials being used
-    print('TENANT_ID:', os.getenv('AZURE_TENANT_ID') or os.getenv('TENANT_ID'))
+    print('TENANT_ID:', os.getenv('AZURE_TENANT_ID') or os.getenv('AZURE_TENANT_ID'))
     print('CLIENT_ID:', os.getenv('AZURE_CLIENT_ID'))
     print('CLIENT_SECRET:', os.getenv('AZURE_CLIENT_SECRET'))
     print('SUBSCRIPTION_ID:', os.getenv('AZURE_SUBSCRIPTION_ID'))
@@ -65,7 +194,8 @@ def list_files(request):
 #from dotenv import load_dotenv
 
 
-@csrf_exempt
+
+@login_required(login_url='/')
 def delete_file(request, file_name):
     """
     Deletes a file from the Azure Blob Storage container.
@@ -85,12 +215,9 @@ def delete_file(request, file_name):
         return HttpResponse(f"Error occurred: {e}")
 
 
-# Create your views here.
-def index(request):
-    print('Request for index page received')
-    return render(request, 'frontend/index.html')
 
-@csrf_exempt
+
+@login_required(login_url='/')
 def hello(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -105,7 +232,7 @@ def hello(request):
     else:
         return redirect('index')
     
-@csrf_exempt
+@login_required(login_url='/')
 def upload_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('myfile')
@@ -156,7 +283,7 @@ def get_blob_client(container_name, account_url, blob_name):
 
 
 
-@csrf_exempt
+@login_required(login_url='/')
 def list_files(request):
     # Log the Azure AD credentials being used
     print('TENANT_ID:', os.getenv('AZURE_TENANT_ID') or os.getenv('AZURE_TENANT_ID'))
@@ -195,14 +322,13 @@ from django.core.paginator import Paginator
 
 
 # This function retrieves all records from the StudentDetails model and renders them in the 'list_db_data.html' template.
-@csrf_exempt
+@login_required(login_url='/')
 def list_db_data(request):
     items = StudentDetails.objects.all()
     print(items)
     return render(request, 'frontend/list_db_data.html', {'items': items})
 
-
-@csrf_exempt
+@login_required(login_url='/')
 def upload_db_data(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -219,7 +345,7 @@ def upload_db_data(request):
     else:
         return render(request, 'frontend/update_db_data.html')
 
-@csrf_exempt
+@login_required(login_url='/')
 def update_db_data(request):
     message = ""
     if request.method == "POST":
@@ -233,7 +359,7 @@ def update_db_data(request):
             message = "All fields are required."
     return render(request, "frontend/update_db_data.html", {"message": message})
 
-@csrf_exempt
+@login_required(login_url='/')
 def delete_record(request, pk):
     if request.method == "POST":
         try:

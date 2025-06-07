@@ -34,6 +34,7 @@ DEBUG = True
 
 # Allow all hosts for testing; restrict in production to your Azure Web App hostname
 ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -138,3 +139,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Adding Azure AD/Entra configuration to your Django settings
+AZURE_AD_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
+AZURE_AD_TENANT_ID = os.getenv("AZURE_TENANT_ID")
+AZURE_AD_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+AZURE_AD_AUTHORITY = f"https://login.microsoftonline.com/{AZURE_AD_TENANT_ID}"
+AZURE_AD_REDIRECT_URI = "http://localhost:8000/getAToken"  # Update for production
+AZURE_AD_SCOPE = ["User.Read", "GroupMember.Read.All"]
+ENTRA_AD_USER_GROUP_ID = os.getenv("ENTRA_USER_GROUP_ID")
+
+
+
+
+MSAL_SCOPE = ["User.Read", "GroupMember.Read.All"]
