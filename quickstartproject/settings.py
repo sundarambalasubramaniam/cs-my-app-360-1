@@ -154,4 +154,6 @@ ENTRA_AD_USER_GROUP_ID = os.getenv("ENTRA_USER_GROUP_ID")
 
 
 
-MSAL_SCOPE = ["User.Read", "GroupMember.Read.All"]print("DEBUG: access token scopes:", token.get("scope"))
+MSAL_SCOPE = ["User.Read", "GroupMember.Read.All"]
+# Debugging output for access token scopes
+# print("DEBUG: access token scopes:", token.get("scope"))
