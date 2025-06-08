@@ -237,19 +237,19 @@ def upload_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('myfile')
         if not uploaded_file:
-            return handle_no_file_selected()
-        return handle_file_upload(uploaded_file)
+            return handle_no_file_selected(request)
+        return handle_file_upload(uploaded_file, request)
     else:
-        return handle_no_file_selected()
+        return handle_no_file_selected(request)
 
-def handle_no_file_selected():
+def handle_no_file_selected(request):
     file_status_message = "File was NOT chosen...please select"
     print(file_status_message)
-    return render(None, 'frontend/upload_file.html', {
+    return render(request, 'frontend/upload_file.html', {
         'file_status_message': file_status_message,
     })
 
-def handle_file_upload(uploaded_file):
+def handle_file_upload(uploaded_file, request):
     print(f"Uploaded file: {uploaded_file.name}")
     container_name, account_url = load_azure_env_variables()
     if not account_url:
@@ -264,7 +264,7 @@ def handle_file_upload(uploaded_file):
         file_status_message = f"Error occurred during file upload: {e}"
         print(file_status_message)
         uploaded_file_url = None
-    return render(None, 'frontend/upload_file.html', {
+    return render(request, 'frontend/upload_file.html', {
         'uploaded_file_url': uploaded_file_url,
         'file_status_message': file_status_message,
     })
