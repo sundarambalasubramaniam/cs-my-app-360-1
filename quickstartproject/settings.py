@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     '.azurestaticapps.net',
     'localhost',
     '127.0.0.1',
+    '169.254.130.3:8000'
 ]
 # ALLOWED_HOSTS = []
 
