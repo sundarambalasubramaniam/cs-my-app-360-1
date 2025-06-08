@@ -33,7 +33,14 @@ SECRET_KEY = '1234567890'
 DEBUG = True
 
 # Allow all hosts for testing; restrict in production to your Azure Web App hostname
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'app-web-lqqelo4ev5pey.azurewebsites.net',
+    'app-web-lqqelo4ev5pey.1.azurestaticapps.net',
+    '.azurewebsites.net',
+    '.azurestaticapps.net',
+    'localhost',
+    '127.0.0.1',
+]
 # ALLOWED_HOSTS = []
 
 
@@ -157,3 +164,7 @@ ENTRA_AD_USER_GROUP_ID = os.getenv("ENTRA_USER_GROUP_ID")
 MSAL_SCOPE = ["User.Read", "GroupMember.Read.All"]
 # Debugging output for access token scopes
 # print("DEBUG: access token scopes:", token.get("scope"))
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://app-web-lqqelo4ev5pey.azurewebsites.net',
+]
